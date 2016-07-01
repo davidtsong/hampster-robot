@@ -10,8 +10,6 @@ import threading
 
 from HamsterAPI.comm_usb import RobotComm
 from datetime import datetime
-from collections import deque
-
 gMaxRobotNum = 1  # max number of robots to control
 gRobotList = None
 

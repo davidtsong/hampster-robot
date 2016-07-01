@@ -1,3 +1,4 @@
+#Djikstra's Algorithm 
 import Queue
 import Tkinter as tk
 
@@ -75,8 +76,6 @@ class Graph:
       print "Dijkstra's algorithm"
       while not self.priority_queue.empty():
         item = self.priority_queue.get()
-        print "Item : " , item  
-
         current_node = self.nodes[item[1]]
         if(current_node.closed!= True):
           for edge in current_node.edges:
@@ -84,88 +83,33 @@ class Graph:
             print "A node dest: ", a_node_name, " An edge", edge
             if not self.nodes[a_node_name].closed:
               # print "A node : ", a_node_name, " Current : ", current_node
-              
-              self.nodes[a_node_name].f_cost = self.nodes[current_node.name].f_cost + edge[1]
-              print "cost: ", self.nodes[a_node_name].f_cost
-              self.priority_queue.put((edge[1],a_node_name))
-              self.nodes[a_node_name].back_pointer = current_node
+              newCost = self.nodes[current_node.name].f_cost + edge[1]
+              currentCost = self.nodes[a_node_name].f_cost
+              if currentCost > newCost or currentCost is 0:
+                self.nodes[a_node_name].f_cost = newCost
+                self.priority_queue.put((edge[1],a_node_name))
+                self.nodes[a_node_name].back_pointer = current_node
+                print "cost: ", self.nodes[a_node_name].f_cost
+              else:
+                print "not cheaper"
+             
+            current_node.closed = True
+      #Get end goal's cost and path
+      goal = self.nodes[self.goalNode]
+      print "found path to ", self.goalNode
+      path = [goal.name]
+      path_node = goal
 
-              if a_node_name == self.goalNode:
-                print "found path to ", a_node_name
-                path = [a_node_name]
-                if lowest_cost is None or self.nodes[a_node_name].f_cost < lowest_cost:
-                  lowest_cost=path_cost = self.nodes[a_node_name].f_cost
-                  path_node = self.nodes[a_node_name]
+      while path_node.back_pointer != False:
+        self.draw_edge(path_node, path_node.back_pointer, "yellow")
+        path_node = path_node.back_pointer
 
-                  while path_node.back_pointer != False:
-                    self.draw_edge(path_node, path_node.back_pointer, "yellow")
-                    path_node = path_node.back_pointer
-                    path.append(path_node.name)
+        path.append(path_node.name)
 
-                  if not self.path:
-                    self.path = path
-                    self.path.reverse()
-                    print "path : ", self.path, "cost: ", path_cost
-                else: print "Not small enough"
-        current_node.closed = True
-        # if(current_node.closed!=True):
-        #   for an_edge in current_node.edges:
-        #     a_node_name = an_edge[0]
-        #     if not self.nodes[a_node_name].closed:
-        #       self.priority_queue.put(an_edge[1],a_node_name)
-        #       print "put queue: ", a_node_name
-        #       self.nodes[a_node_name].back_pointer = current_node
-        #       if a_node_name == self.goalNode:
-        #         print "found path to ", a_node_name
-        #         path = [a_node_name]
-        #         #path_cost = 0
-        #         path_node = self.nodes[a_node_name]
-        #         while path_node.back_pointer != False:
-        #           self.draw_edge(path_node, path_node.back_pointer, "yellow")
-        #           path_node = path_node.back_pointer
-        #           path.append(path_node.name)
-
-        #         if not self.path:
-        #           self.path = path
-        #           self.path.reverse()
-        #           print "path: ", self.path
-        #     else:
-        #       print "node closed: ", a_node_name
-        # current_node.closed = True
-
-    def BFS(self): # Breadth First Search
-      print "Breadth First Search"
-      while not self.queue.empty():
-        current_node = self.queue.get()
-        if (current_node.closed != True):
-          print "expand current node: ", current_node.name
-          print "edges from node: ",current_node.edges
-          for an_edge in current_node.edges:
-            a_node_name = an_edge[0]
-            if not self.nodes[a_node_name].closed: #has been "expanded"
-              self.queue.put(self.nodes[a_node_name])
-              print "put queue: ", a_node_name
-              self.nodes[a_node_name].back_pointer = current_node
-
-              # check if path to goal is found, if so, extract path
-              if a_node_name == self.goalNode:
-                print "found path to ", a_node_name
-                path = [a_node_name]
-                #path_cost = 0
-                path_node = self.nodes[a_node_name]
-                while path_node.back_pointer != False:
-                  self.draw_edge(path_node, path_node.back_pointer, "yellow")
-                  path_node = path_node.back_pointer
-                  path.append(path_node.name)
-
-                if not self.path:
-                  self.path = path
-                  self.path.reverse()
-                  print "path: ", self.path
-            else:
-              print "node closed: ", a_node_name
-        current_node.closed = True
-
+      if not self.path:
+        self.path = path
+        self.path.reverse()
+        print "path : ", self.path, "cost: ", goal.f_cost
 
 def main():
 
@@ -198,12 +142,12 @@ def main():
     MyGraph.set_start("S")
     MyGraph.set_goal("D")
 
-    MyGraph.add_edge("A", "S", 3)
-    MyGraph.add_edge("B", "S", 3)
-    MyGraph.add_edge("C", "S", 2)
-    MyGraph.add_edge("B", "D", 1)
-    MyGraph.add_edge("A", "D", 5)
-    MyGraph.add_edge("C", "D", 3)
+    MyGraph.add_edge("A", "S", 1)
+    MyGraph.add_edge("B", "S", 2)
+    MyGraph.add_edge("C", "S", 3)
+    MyGraph.add_edge("B", "D", 5)
+    MyGraph.add_edge("A", "D", 4)
+    MyGraph.add_edge("C", "D", 6)
 
     MyGraph.dijk()
 
