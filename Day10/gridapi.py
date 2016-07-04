@@ -1,9 +1,9 @@
 import Queue
 import time
-def addCommand(currentDir, desiredDir):
+def addCommand(currentDir, desiredDir, currentCoord, destCoord):
     commandseg  = []
     if desiredDir - currentDir == 0:
-        commandseg.append("forward()")
+        commandseg.append(("forward()"))
     if desiredDir - currentDir == -1:
         commandseg.append("left()")
         commandseg.append("forward()")
@@ -39,7 +39,7 @@ def buildCommandQueue(pathraw,robot):
             if currentCoord[1]+1 == nextCoord[1]:#go right
                 if direction is None: 
                     direction = 2
-                commands = commands + addCommand(direction,2)
+                commands = commands + addCommand(direction,2,[currentCoord[0],currentCoord[1]],[])
                 direction = 2
             if currentCoord[1]-1 == nextCoord[1]:#go left
                 if direction is None: 

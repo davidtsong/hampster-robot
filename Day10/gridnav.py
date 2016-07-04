@@ -5,7 +5,7 @@ from HamsterAPI.comm_usb import RobotComm
 from gridapi import *
 
 gRobotList = None
-gRobotNum = 1
+gRobotNum = 2
 rawPath = []
 commands = []
 robot = None
@@ -76,6 +76,8 @@ def start(event=None):
         #     commands = buildCommandQueue(rawPath,robot)
         #     i = 0
         eval(commands[i])
+        # (commmandName, current, dest) num command is the index in the array
+        
 
 def exitProg(event=None):
     frame.quit()
