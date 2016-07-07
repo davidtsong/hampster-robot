@@ -2,31 +2,35 @@ import Queue
 import time
 def addCommand(currentDir, desiredDir, currentCoord, destCoord):
     commandseg  = []
+    commandseg.append(["checkObs",currentCoord,destCoord])
     if desiredDir - currentDir == 0:
-        commandseg.append(("forward()"))
+        commandseg.append(["forward"])
     if desiredDir - currentDir == -1:
-        commandseg.append("left()")
-        commandseg.append("forward()")
+        commandseg.append(["left"])
+        commandseg.append(["forward"])
     if desiredDir - currentDir == 1:
-        commandseg.append("right()")
-        commandseg.append("forward()")
+        commandseg.append(["right"])
+        commandseg.append(["forward"])
     if abs(desiredDir - currentDir) == 2:
-        commandseg.append("right()")
-        commandseg.append("right()")
-        commandseg.append("forward()")
+        commandseg.append(["right"])
+        commandseg.append(["right"])
+        commandseg.append(["forward"])
     if desiredDir - currentDir == -3:
-        commandseg.append("right()")
-        commandseg.append("forward()")
+        commandseg.append(["right"])
+        commandseg.append(["forward"])
     if desiredDir - currentDir == 3:
-        commandseg.append("left()")
-        commandseg.append("forward()")
+        commandseg.append(["left"])
+        commandseg.append(["forward"])
+    
+
+    print commandseg
     return commandseg
-def buildCommandQueue(pathraw,robot):
+def buildCommandQueue(pathraw,robot, defaultDir):
     turning = False
     path = []
     commands = []
     i = 0
-    direction = None
+    direction = defaultDir #Always start pointing up relative to grid
     for i in range(len(pathraw)):
         pathraw[i].split("-")
         path.append([int(pathraw[i][0]),int(pathraw[i][2])])  
@@ -35,30 +39,21 @@ def buildCommandQueue(pathraw,robot):
         if i != len(path)-1:
             nextCoord = path[i+1]
             currentCoord = path[i]
-
+            currentDir = direction
             if currentCoord[1]+1 == nextCoord[1]:#go right
-                if direction is None: 
-                    direction = 2
-                commands = commands + addCommand(direction,2,[currentCoord[0],currentCoord[1]],[])
-                direction = 2
+                direction = 2 #sets desired direction
             if currentCoord[1]-1 == nextCoord[1]:#go left
-                if direction is None: 
-                    direction = 4
-                commands = commands + addCommand(direction,4)
-                direction = 4
+                direction = 4 #sets desired direction
             if currentCoord[0]+1 == nextCoord[0]:#go up
-                if direction is None: 
-                    direction = 1
-                commands = commands + addCommand(direction,1)
-                direction = 1
+                direction = 1 #sets desired direction
             if currentCoord[0]-1 == nextCoord[0]:#go down
-                if direction is None: 
-                    direction = 3
-                commands = commands + addCommand(direction,3)
-                direction = 3
-            print direction
-            print commands
-    print commands
+                direction = 3 #sets desired direction
+
+            commands = commands + addCommand(currentDir, direction, currentCoord, nextCoord)
+            # print direction
+            # print commands
+    # print commands
+    commands.append(["end"])
     return commands
     print "done making commands"
 
@@ -79,12 +74,14 @@ class Graph:
         self.goalNode = None
         self.path = []
         #self.path_cost = False
-        self.queue = Queue.LifoQueue()
+        self.queue = Queue.Queue()
         #self.lifo_queue = Queue.LifoQueue()
         #self.priority_queue = Queue.PriorityQueue()
         self.canvas = canvas
         self.node_dist = 60
         self.node_size = 20
+        self.columns = 0
+        self.rows = 0
 
     def draw_node(self, a_node, n_color):
         if a_node.data: # coordinate to draw
@@ -128,7 +125,6 @@ class Graph:
         self.nodes[node2].edges.append([node1, g_cost])
         self.draw_edge(self.nodes[node1], self.nodes[node2], "blue")
 
-
     def BFS(self): # Breadth First Search
       print "Breadth First Search"
       while not self.queue.empty():
@@ -151,10 +147,10 @@ class Graph:
                 path_node = self.nodes[a_node_name]
                 while path_node.back_pointer != False:
                   self.draw_edge(path_node, path_node.back_pointer, "yellow")
-                  print "Last : " + path_node.name
+                  print "Drew a line for path"
                   path_node = path_node.back_pointer
                   path.append(path_node.name)
-
+                
                 if not self.path:
                   self.path = path
                   self.path.reverse()
@@ -163,9 +159,13 @@ class Graph:
             else:
               print "node closed: ", a_node_name
         current_node.closed = True
-        print self.path
         
-
+def createGraphView(MyGraph,obs,startNode, endNode):
+  draw_nodes(MyGraph, MyGraph.columns, MyGraph.rows)
+  closeNodes(MyGraph, obs)
+  print "start node" , startNode
+  MyGraph.set_start(startNode)
+  MyGraph.set_goal(endNode)
 def draw_nodes(MyGraph, columns, rows):
   c = 0
   r = 0
@@ -181,8 +181,11 @@ def draw_nodes(MyGraph, columns, rows):
         MyGraph.add_edge(str(r)+"-"+str(c), str(r-1)+"-"+str(c),1)
 
 
-def closeNode(MyGraph, nodeName):
-  node = MyGraph.nodes[nodeName]
-  node.closed = True
-  MyGraph.draw_node(node, "white")
+def closeNodes(MyGraph, nodeList):
+  for node in nodeList:
+    nodeName = str(node[0])+"-"+str(node[1])
+    print "Closing node : ", nodeName
+    node = MyGraph.nodes[nodeName]
+    node.closed = True
+    MyGraph.draw_node(node, "white")
 
